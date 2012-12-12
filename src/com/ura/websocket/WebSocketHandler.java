@@ -89,7 +89,9 @@ public class WebSocketHandler extends SimpleChannelUpstreamHandler {
 		int localPort = Integer.valueOf(jsonObject.getString("fromport"));
 		String remoteHost = jsonObject.getString("toip");
 		int remotePort = Integer.valueOf(jsonObject.getString("toport"));
+		String id = jsonObject.getString("id");
 		HexDumpProxy proxy = new HexDumpProxy(localPort, remoteHost, remotePort);
+		proxy.setId(id);
 		return proxy;
 	}
 

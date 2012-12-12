@@ -29,7 +29,7 @@ import java.util.concurrent.Executors;
 import org.apache.log4j.Logger;
   
   public class HexDumpProxy {
-  
+	  private String id ;
 	  Logger logger = Logger.getLogger(HexDumpProxy.class);
       @Override
 	public int hashCode() {
@@ -61,6 +61,14 @@ import org.apache.log4j.Logger;
 		if (remotePort != other.remotePort)
 			return false;
 		return true;
+	}
+
+	public String getId() {
+		return id;
+	}
+
+	public void setId(String name) {
+		this.id = name;
 	}
 
 	private final int localPort;
