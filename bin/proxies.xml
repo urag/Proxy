@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<proxies>
+	<proxy fromport="9001" toip="127.0.0.1" toport="9002" />
+	<proxy fromport="9321" toip="127.0.0.1" toport="9002" />
+	<proxy fromport="1221" toip="124.0.0.1" toport="9221" />
+	<proxy fromport="2001" toip="137.0.0.1" toport="7342" />
+	<proxy fromport="7412" toip="111.2.2.1" toport="4444" />
+</proxies>
