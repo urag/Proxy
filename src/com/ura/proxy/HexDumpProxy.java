@@ -31,10 +31,13 @@ import org.apache.log4j.Logger;
   public class HexDumpProxy {
 	  private String id ;
 	  Logger logger = Logger.getLogger(HexDumpProxy.class);
-      @Override
+   
+
+	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
+		result = prime * result + ((id == null) ? 0 : id.hashCode());
 		result = prime * result + localPort;
 		result = prime * result
 				+ ((remoteHost == null) ? 0 : remoteHost.hashCode());
@@ -51,6 +54,11 @@ import org.apache.log4j.Logger;
 		if (getClass() != obj.getClass())
 			return false;
 		HexDumpProxy other = (HexDumpProxy) obj;
+		if (id == null) {
+			if (other.id != null)
+				return false;
+		} else if (!id.equals(other.id))
+			return false;
 		if (localPort != other.localPort)
 			return false;
 		if (remoteHost == null) {
@@ -73,16 +81,30 @@ import org.apache.log4j.Logger;
 
 	private final int localPort;
       private final String remoteHost;
-      private final int remotePort;
+      public int getLocalPort() {
+		return localPort;
+	}
+
+	public String getRemoteHost() {
+		return remoteHost;
+	}
+
+	public int getRemotePort() {
+		return remotePort;
+	}
+
+	private final int remotePort;
       private ClientSocketChannelFactory factory;
       private Channel mainChannel ;
-      public HexDumpProxy(int localPort, String remoteHost, int remotePort) {
+      public HexDumpProxy(String id ,int localPort, String remoteHost, int remotePort) {
           this.localPort = localPort;
           this.remoteHost = remoteHost;
           this.remotePort = remotePort;
+          this.id = id;
       }
   
-      public void start() {
+     
+	public void start() {
           logger.info(
                   "Proxying *:" + localPort + " to " +
                   remoteHost + ':' + remotePort + " ...");

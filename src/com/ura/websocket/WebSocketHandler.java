@@ -12,6 +12,8 @@ import io.netty.handler.codec.http.websocketx.WebSocketFrame;
 import io.netty.handler.codec.http.websocketx.WebSocketServerHandshaker;
 import io.netty.handler.codec.http.websocketx.WebSocketServerHandshakerFactory;
 
+import java.io.File;
+
 import net.sf.json.JSONObject;
 
 import org.apache.log4j.Logger;
@@ -22,7 +24,7 @@ import com.ura.proxy.HexDumpProxy;
 public class WebSocketHandler extends SimpleChannelUpstreamHandler {
 
 	Logger logger = Logger.getLogger(WebSocketHandler.class);
-	Installator installator = new Installator();
+	Installator installator = new Installator(new File("src/proxies.xml"));
 
 	public WebSocketHandler() {
 		super();
@@ -90,8 +92,7 @@ public class WebSocketHandler extends SimpleChannelUpstreamHandler {
 		String remoteHost = jsonObject.getString("toip");
 		int remotePort = Integer.valueOf(jsonObject.getString("toport"));
 		String id = jsonObject.getString("id");
-		HexDumpProxy proxy = new HexDumpProxy(localPort, remoteHost, remotePort);
-		proxy.setId(id);
+		HexDumpProxy proxy = new HexDumpProxy(id,localPort, remoteHost, remotePort);
 		return proxy;
 	}
 

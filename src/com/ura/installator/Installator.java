@@ -2,29 +2,32 @@ package com.ura.installator;
 
 import java.io.File;
 import java.net.InetSocketAddress;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
 import org.apache.log4j.Logger;
 
-
 import com.ura.proxy.HexDumpProxy;
+import com.ura.utils.Pair;
 import com.ura.utils.Utils;
 
 public class Installator {
 
-	Set<HexDumpProxy> proxys = new HashSet<HexDumpProxy>();
+	//Set<HexDumpProxy> proxys = new HashSet<HexDumpProxy>();
+	Map <String,HexDumpProxy>proxysMap ;
 	Logger logger = Logger.getLogger(Installator.class);
 	
 	/**
 	 * Goes over all running proxys and stops those that are not in the new map 
 	 * and starting those in new map but not in all in the end writing to config file new proxys pairs. 
 	 */
-	public void reInstallProxys(Map<Integer, InetSocketAddress> addresses) {
-		logger.info("Reinstaling proxys");
+	public void reInstallProxys(Map<String, Pair<InetSocketAddress, InetSocketAddress>> newAddresses) {
+		logger.info("Reinstaling proxys ...");
+		Set<HexDumpProxy>proxys = new HashSet<HexDumpProxy>(proxysMap.values());
 		Set<HexDumpProxy> proxysToKill = new HashSet<HexDumpProxy>(proxys);
-		Set<HexDumpProxy> proxysToStart = getProxysSetFromAddressMap(addresses);
+		Set<HexDumpProxy> proxysToStart = new HashSet<HexDumpProxy>(getProxysMapFromAddressMap(newAddresses).values());
 		//All proxys that are not present in new proxy group need to be killed
 		proxysToKill.removeAll(proxysToStart);
 		killProxyGroup(proxysToKill);
@@ -33,9 +36,8 @@ public class Installator {
 		startProxyGroup(proxysToStart);
 	}
 
-
-	public Installator(){
-		Map<Integer, InetSocketAddress> addresses = Utils.mapForXML(new File("src/proxies.xml"));
+	public Installator(File file){
+		Map<String,Pair<InetSocketAddress,InetSocketAddress>> addresses = Utils.mapForXML(file);
 		installProxys(addresses);
 	}
 
@@ -50,10 +52,10 @@ public class Installator {
 	/**
 	 * Gets a map of enter ports outAddresses pairs and starts proxys for all this pairs. 
 	 */
-	public void installProxys(Map<Integer, InetSocketAddress> addresses) {
-		logger.info("Instaling proxys");
-		proxys = getProxysSetFromAddressMap(addresses);
-		startProxyGroup(proxys);
+	private void installProxys(Map<String,Pair<InetSocketAddress,InetSocketAddress>> addresses) {
+		logger.info("Instaling proxys ...");
+		proxysMap = getProxysMapFromAddressMap(addresses);
+		startProxyGroup(new HashSet<HexDumpProxy>(proxysMap.values()));
 	}
 
 	/**
@@ -69,26 +71,28 @@ public class Installator {
 	 * @param addresses map of port InetSocketAddress pairs 
 	 * @return proxys map
 	 */
-	public Set<HexDumpProxy> getProxysSetFromAddressMap(
-			Map<Integer, InetSocketAddress> addresses) {
+	private Map<String, HexDumpProxy> getProxysMapFromAddressMap(
+			Map<String, Pair<InetSocketAddress, InetSocketAddress>> addresses) {
 
-		Set<HexDumpProxy> result = new HashSet<HexDumpProxy>();
-		for (Integer key : addresses.keySet()) {
-			HexDumpProxy proxy = new HexDumpProxy(key, addresses.get(key)
-					.getHostName(), addresses.get(key).getPort());
-			result.add(proxy);
+		Map<String,HexDumpProxy> resultMap = new HashMap<String,HexDumpProxy>();
+		for (String key : addresses.keySet()) {
+			HexDumpProxy proxy = new HexDumpProxy(key,addresses.get(key).getFirst().getPort(),addresses.get(key).getSecond().getHostName(),addresses.get(key).getSecond().getPort());
+			
+			resultMap.put(key, proxy);
 		}
 
-		return result;
+		return resultMap;
 	}
 	
 
 	public void installProxy(HexDumpProxy proxy) {
-		if(proxys.contains(proxy)){
+	Set<HexDumpProxy>proxys = new HashSet<HexDumpProxy>(proxysMap.values());
+		if(!proxys.contains(proxy)){
 			logger.info("Installing new proxy");
 			proxy.start();
 			proxys.add(proxy);
 		    changeXml(proxy);
+		    proxys.add(proxy);
 		}
 		else 
 			logger.info("Proxy alredy exists");
@@ -96,28 +100,28 @@ public class Installator {
 
 
 	private void changeXml(HexDumpProxy proxy) {
-		logger.info("Writing proxy in to the file");
+		logger.info("Writing changes in to the file");
+		File destFile = new File("src/proxies.xml");
+		Utils.reWriteProxieElementInToXML(proxy.getId(), proxy.getLocalPort(),proxy.getRemoteHost(),proxy.getRemotePort(), destFile,destFile);
 	}
 
 
 	public void uninstallProxy(HexDumpProxy proxy) {
 		logger.info("Uninstalling proxy");		
-		if(proxys.contains(proxy)){
+		if(proxysMap.containsKey(proxy.getId())){
 			logger.info("Uninstalling proxy");
 			proxy.stop();
-			proxys.remove(proxy);
+			proxysMap.remove(proxy.getId());
 		    changeXml(proxy);
 		}
 		else 
-			logger.info("Proxy alredy exists");
+			logger.info("Proxy is not found");
 	}
 	
 
 	public static void main(String []args){
-		Installator instalator = new Installator();
-		Map<Integer, InetSocketAddress> addresses = Utils.mapForXML(new File("src/proxies.xml"));
-		instalator.installProxys(addresses);
-		Map<Integer, InetSocketAddress> newAddresses = Utils.mapForXML(new File("src/proxiesT.xml"));
+		Installator instalator = new Installator(new File("src/proxies.xml"));
+		Map<String, Pair<InetSocketAddress, InetSocketAddress>> newAddresses = Utils.mapForXML(new File("src/proxiesT.xml"));
 		instalator.reInstallProxys(newAddresses);
 
 	}

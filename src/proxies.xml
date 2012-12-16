@@ -1,8 +1,7 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<proxies>     
-	<proxy fromport="9001" toip="127.0.0.1" toport="9002"/>
-	<proxy fromport="9321" toip="127.0.0.1" toport="9002"/>
-	<proxy fromport="1221" toip="124.0.0.1" toport="9221"/>
-	<proxy fromport="2001" toip="137.0.0.1" toport="7342"/>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<proxies>
+	<proxy id="ebs" fromport="9001" toip="127.0.0.1" toport="9002" />
+	<proxy id="city" fromport="9321" toip="127.0.0.1" toport="9002" />
+	<proxy id="blabla" fromport="1221" toip="124.0.0.1" toport="9221" />
+	<proxy id="fd" fromport="2001" toip="137.0.0.1" toport="7342" />
 </proxies>
- 
