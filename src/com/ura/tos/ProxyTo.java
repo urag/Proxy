@@ -1,6 +1,6 @@
 package com.ura.tos;
 
-public class Proxy {
+public class ProxyTo {
 	private String id;
 	private Integer fromport;
 

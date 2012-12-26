@@ -79,7 +79,7 @@ public class WebSocketHandler extends SimpleChannelUpstreamHandler {
 	private void handleMessage(Object frame) {
 		TextWebSocketFrame textframe = (TextWebSocketFrame) frame;
 		JSONObject jsonObject = JSONObject.fromObject(textframe.getText());
-		String type = jsonObject.getString("datatype");
+		String type = jsonObject.getString("action");
 		HexDumpProxy proxy = createProxyFromJson(jsonObject);
 		if (type.equals("proxyupdate"))
 			installator.installProxy(proxy);

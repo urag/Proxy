@@ -120,9 +120,12 @@ public class Installator {
 	
 
 	public static void main(String []args){
-		Installator instalator = new Installator(new File("src/proxies.xml"));
-		Map<String, Pair<InetSocketAddress, InetSocketAddress>> newAddresses = Utils.mapForXML(new File("src/proxiesT.xml"));
-		instalator.reInstallProxys(newAddresses);
+		if(args.length != 1){
+			System.out.println("Wrong number of arguments !!!");
+		}else{
+			Installator installator = new Installator(new File(args[0]));
+			Map<String, Pair<InetSocketAddress, InetSocketAddress>> newAddresses = Utils.mapForXML(new File("src/proxiesT.xml"));
+		}
 
 	}
 
